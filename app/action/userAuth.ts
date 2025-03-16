@@ -57,11 +57,10 @@ export async function userSignUp(
   }
 }
 
-export async function userSignin(formData: FormData): Promise<any> {
-  const cookieStore = await cookies(); // ✅ Await the cookies function
+export async function userSignin(formData: FormData) {
+  const cookieStore = await cookies();
 
   try {
-    // Extract email and password
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
@@ -73,58 +72,46 @@ export async function userSignin(formData: FormData): Promise<any> {
       `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       }
     );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        errorText || `Login failed with status: ${response.status}`
-      );
-    }
-
-    let data;
-    try {
-      data = await response.json();
-    } catch {
-      throw new Error("Invalid response from server.");
-    }
+    const data = await response.json();
 
     if (!data.success) {
-      return {
-        success: false,
-        error: data.message || "Invalid login credentials.",
-      };
+      return { success: false, error: data.message };
     }
 
-    // ✅ Set cookies only if the login is successful
     await cookieStore.set("accessToken", data.payload.accessToken, {
       secure: true,
       httpOnly: true,
       path: "/",
     });
 
-    await cookieStore.set("userInfo", JSON.stringify(data.payload.user), {
+    await cookieStore.set("refreshToken", data.payload.refreshToken, {
       secure: true,
+      httpOnly: true,
       path: "/",
     });
 
     return data;
   } catch (error: any) {
-    console.error("Error from action:", error);
-    return {
-      success: false,
-      error: error.message || "Something went wrong. Please try again.",
-    };
+    console.error("Login error:", error);
+    return { success: false, error: error.message || "Login failed." };
   }
 }
 
 export async function userLogout() {
-  (await cookies()).delete("accessToken");
-  (await cookies()).delete("userInfo");
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.delete("accessToken");
+  cookieStore.delete("refreshToken");
+  cookieStore.delete("userInfo");
+
   redirect("/sign-in");
 }

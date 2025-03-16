@@ -9,6 +9,7 @@ import {
   updateNote,
 } from "../app/action/note";
 
+// Initialize socket connection
 const socket = io("http://localhost:8000", { autoConnect: false });
 
 export default function Note() {
@@ -20,12 +21,13 @@ export default function Note() {
   const [editId, setEditId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Fetch Notes & Setup WebSocket
   useEffect(() => {
     async function fetchNotes() {
       try {
         setLoading(true);
         const data = await getNotes();
-        setNotes(data.payload || []);
+        setNotes(Array.isArray(data) ? data : []); // Ensure valid array
       } catch (error) {
         console.error("Error fetching notes:", error);
       } finally {
@@ -36,6 +38,7 @@ export default function Note() {
     fetchNotes();
     socket.connect();
 
+    // Listen for real-time updates
     socket.on("noteUpdated", (updatedNote) => {
       setNotes((prev) =>
         prev.some((n) => n._id === updatedNote._id)
@@ -55,6 +58,7 @@ export default function Note() {
     };
   }, []);
 
+  // Create or Update Note
   const handleSubmit = async () => {
     if (!title.trim() || !content.trim()) return;
 
@@ -63,13 +67,13 @@ export default function Note() {
       if (editId) {
         const updatedNote = await updateNote(editId, title, content);
         setNotes((prev) =>
-          prev.map((n) => (n._id === editId ? updatedNote.payload : n))
+          prev.map((n) => (n._id === editId ? updatedNote : n))
         );
-        socket.emit("updateNote", updatedNote.payload);
+        socket.emit("updateNote", updatedNote);
       } else {
         const newNote = await createNote(title, content);
-        setNotes((prev) => [...prev, newNote.payload]);
-        socket.emit("createNote", newNote.payload);
+        setNotes((prev) => [...prev, newNote]);
+        socket.emit("createNote", newNote);
       }
 
       setTitle("");
@@ -82,6 +86,7 @@ export default function Note() {
     }
   };
 
+  // Edit Note
   const handleEdit = (note: {
     _id: string;
     title: string;
@@ -92,11 +97,12 @@ export default function Note() {
     setEditId(note._id);
   };
 
+  // Delete Note
   const handleDelete = async (id: string) => {
     try {
       setNotes((prev) => prev.filter((n) => n._id !== id));
-      const deletedNote = await deleteNote(id);
-      socket.emit("deleteNote", deletedNote.payload);
+      await deleteNote(id);
+      socket.emit("deleteNote", { _id: id });
     } catch (error) {
       console.error("Error deleting note:", error);
     }

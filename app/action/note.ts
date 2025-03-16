@@ -1,56 +1,21 @@
 "use server";
 
-import { cookies } from "next/headers";
-import { io } from "socket.io-client";
+import { fetchWithAuth } from "./fetchWithAuth";
 
-// Ensure socket is only initialized once
-const socket = io("http://localhost:8000");
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 export const createNote = async (title: string, content: string) => {
-  const token = (await cookies()).get("accessToken")?.value;
-
-  const res = await fetch("http://localhost:8000/api/notes", {
+  const response = await fetchWithAuth(`${API_URL}/api/notes`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
     body: JSON.stringify({ title, content }),
-    cache: "no-store",
   });
 
-  if (!res.ok) throw new Error("Failed to create note");
-
-  const newNote = await res.json();
-
-  // Emit event to notify others
-  socket.emit("noteUpdated", newNote);
-
-  return newNote;
+  return response || {}; // Ensure response is always valid
 };
 
 export const getNotes = async () => {
-  const token = (await cookies()).get("accessToken")?.value;
-
-  const res = await fetch("http://localhost:8000/api/notes", {
-    headers: { Authorization: `${token}` },
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch notes");
-  return res.json();
-};
-
-export const getNote = async (id: string) => {
-  const token = (await cookies()).get("accessToken")?.value;
-
-  const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
-    headers: { Authorization: `${token}` },
-    cache: "no-store",
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch note");
-  return res.json();
+  const response = await fetchWithAuth(`${API_URL}/api/notes`);
+  return response || []; // Return empty array if undefined
 };
 
 export const updateNote = async (
@@ -58,43 +23,18 @@ export const updateNote = async (
   title: string,
   content: string
 ) => {
-  const token = (await cookies()).get("accessToken")?.value;
-
-  const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
+  const response = await fetchWithAuth(`${API_URL}/api/notes/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `${token}`,
-    },
     body: JSON.stringify({ title, content }),
-    cache: "no-store",
   });
 
-  if (!res.ok) throw new Error("Failed to update note");
-
-  const updatedNote = await res.json();
-
-  // Emit event to notify others
-  socket.emit("noteUpdated", updatedNote);
-
-  return updatedNote;
+  return response || {}; // Prevent undefined errors
 };
 
 export const deleteNote = async (id: string) => {
-  const token = (await cookies()).get("accessToken")?.value;
-
-  const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
+  const response = await fetchWithAuth(`${API_URL}/api/notes/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `${token}` },
-    cache: "no-store",
   });
 
-  if (!res.ok) throw new Error("Failed to delete note");
-
-  const deletedNote = await res.json();
-
-  // Emit event to notify others
-  socket.emit("noteDeleted", { _id: id });
-
-  return deletedNote;
+  return response || {}; // Ensure response consistency
 };
