@@ -1,10 +1,10 @@
-import { userLogOut } from "@/app/action/userAuth";
-import { auth } from "@/auth";
+import { userLogout } from "@/app/action/userAuth";
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { FiLogOut } from "react-icons/fi";
 
 const Navbar: React.FC = async () => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
 
   return (
     <nav className="bg-white shadow my-3">
@@ -23,8 +23,8 @@ const Navbar: React.FC = async () => {
             Note App
           </span>
         </Link>
-        {session && (
-          <form action={userLogOut}>
+        {token && (
+          <form action={userLogout}>
             <button
               type="submit"
               className="w-full px-5 py-3 text-left text-lg text-gray-800 hover:bg-primary hover:text-blue-700 flex items-center space-x-2"

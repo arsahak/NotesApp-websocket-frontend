@@ -1,6 +1,6 @@
 "use client";
 
-import { doCredentialLogin } from "@/app/action/userAuth";
+import { userSignin } from "@/app/action/userAuth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,20 +18,24 @@ const SigninForm = () => {
     event.preventDefault();
     setLoading(true);
     setError("");
+
     try {
       const formData = new FormData(event.currentTarget);
-      const response = await doCredentialLogin(formData);
+      const response = await userSignin(formData);
 
-      if (response?.error) {
-        console.error(response.error);
-        setError(mapError(response.error.message));
-      } else {
-        toast.success("Login succefly");
-        router.push("/");
+      if (!response.success) {
+        console.error("Login failed:", response.error);
+        setError(mapError(response.error)); // Ensure mapError is properly handling messages
+        toast.error("Login failed. Please try again.");
+        return;
       }
+
+      toast.success("Login successful!");
+      router.push("/");
     } catch (e) {
-      console.error(e);
-      setError("Invalid login email/password.");
+      console.error("Unexpected error:", e);
+      setError("An unexpected error occurred. Please try again later.");
+      toast.error("An unexpected error occurred.");
     } finally {
       setLoading(false);
     }

@@ -63,7 +63,7 @@ const SignupForm: React.FC = () => {
         toast.success("Account created successfully");
         router.push("/sign-in");
       } else {
-        setError(data.message || "An error occurred during sign-up.");
+        setError("An error occurred during sign-up.");
       }
     } catch (error) {
       setError(
@@ -115,7 +115,6 @@ const SignupForm: React.FC = () => {
               name="email"
               required
               className="bg-white border border-gray-300 text-lg rounded-lg focus:ring-primary focus:border-primary block w-full pl-3 py-2 placeholder-gray-400 outline-none"
-              p
               placeholder="Enter your email"
               autoComplete="off"
               value={formData.email}

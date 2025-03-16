@@ -1,19 +1,19 @@
 "use server";
 
-import { auth } from "@/auth";
+import { cookies } from "next/headers";
 import { io } from "socket.io-client";
 
 // Ensure socket is only initialized once
 const socket = io("http://localhost:8000");
 
 export const createNote = async (title: string, content: string) => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
 
   const res = await fetch("http://localhost:8000/api/notes", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${session?.user?.accessToken}`,
+      Authorization: `${token}`,
     },
     body: JSON.stringify({ title, content }),
     cache: "no-store",
@@ -30,9 +30,10 @@ export const createNote = async (title: string, content: string) => {
 };
 
 export const getNotes = async () => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
+
   const res = await fetch("http://localhost:8000/api/notes", {
-    headers: { Authorization: `${session?.user?.accessToken}` },
+    headers: { Authorization: `${token}` },
     cache: "no-store",
   });
 
@@ -41,9 +42,10 @@ export const getNotes = async () => {
 };
 
 export const getNote = async (id: string) => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
+
   const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
-    headers: { Authorization: `${session?.user?.accessToken}` },
+    headers: { Authorization: `${token}` },
     cache: "no-store",
   });
 
@@ -56,12 +58,13 @@ export const updateNote = async (
   title: string,
   content: string
 ) => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
+
   const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${session?.user?.accessToken}`,
+      Authorization: `${token}`,
     },
     body: JSON.stringify({ title, content }),
     cache: "no-store",
@@ -78,10 +81,11 @@ export const updateNote = async (
 };
 
 export const deleteNote = async (id: string) => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
+
   const res = await fetch(`http://localhost:8000/api/notes/${id}`, {
     method: "DELETE",
-    headers: { Authorization: `${session?.user?.accessToken}` },
+    headers: { Authorization: `${token}` },
     cache: "no-store",
   });
 

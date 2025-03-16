@@ -1,19 +1,17 @@
-import { auth } from "@/auth";
 import Note from "@/component/Note";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 const page = async () => {
-  const session = await auth();
+  const token = (await cookies()).get("accessToken")?.value;
 
-  // Redirects unauthorized users
-
-  if (!session) {
+  if (!token) {
     return redirect("/sign-in");
   }
 
   return (
     <div>
-      <Note />
+      <Note />{" "}
     </div>
   );
 };

@@ -1,33 +1,7 @@
 "use server";
 
-import { signIn, signOut } from "@/auth";
-
-export async function userLogOut(): Promise<void> {
-  await signOut({ redirectTo: "/" });
-}
-export async function doCredentialLogin(formData: FormData): Promise<any> {
-  try {
-    const response = await signIn("credentials", {
-      email: formData.get("email") as string,
-      password: formData.get("password") as string,
-      redirect: false,
-    });
-    return response;
-  } catch (err: unknown) {
-    throw new Error((err as Error).message || "Unknown error occurred");
-  }
-}
-
-export async function doGoogleLogin(): Promise<any> {
-  try {
-    const response = await signIn("google", {
-      redirect: false, // Set to true if you want to redirect to the default callback page
-    });
-    return response;
-  } catch (err: unknown) {
-    throw new Error((err as Error).message || "Google sign-in failed");
-  }
-}
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function userSignUp(
   formData: FormData | Record<string, string>
@@ -81,4 +55,76 @@ export async function userSignUp(
       ok: false,
     };
   }
+}
+
+export async function userSignin(formData: FormData): Promise<any> {
+  const cookieStore = await cookies(); // ✅ Await the cookies function
+
+  try {
+    // Extract email and password
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    if (!email || !password) {
+      return { success: false, error: "Email and password are required." };
+    }
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(
+        errorText || `Login failed with status: ${response.status}`
+      );
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("Invalid response from server.");
+    }
+
+    if (!data.success) {
+      return {
+        success: false,
+        error: data.message || "Invalid login credentials.",
+      };
+    }
+
+    // ✅ Set cookies only if the login is successful
+    await cookieStore.set("accessToken", data.payload.accessToken, {
+      secure: true,
+      httpOnly: true,
+      path: "/",
+    });
+
+    await cookieStore.set("userInfo", JSON.stringify(data.payload.user), {
+      secure: true,
+      path: "/",
+    });
+
+    return data;
+  } catch (error: any) {
+    console.error("Error from action:", error);
+    return {
+      success: false,
+      error: error.message || "Something went wrong. Please try again.",
+    };
+  }
+}
+
+export async function userLogout() {
+  (await cookies()).delete("accessToken");
+  (await cookies()).delete("userInfo");
+  redirect("/sign-in");
 }
