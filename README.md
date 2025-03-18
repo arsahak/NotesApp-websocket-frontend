@@ -1,33 +1,27 @@
-# 🚀 NotesApp WebSocket Backend
+# 📝 Notes App
 
-A **Node.js** and **Express.js** backend for the **NotesApp**, supporting real-time collaboration with **WebSockets (Socket.io)** and **MongoDB** as the database.
+A full-stack Notes App built with **Next.js**, **TypeScript**, **Tailwind CSS**, and **Socket.io** for real-time collaboration.
 
-## 🛠️ Features
+## 🚀 Features
 
-- 📄 **Create, Read, Update, Delete (CRUD)** operations for notes
-- 🔄 **Real-time updates** using **Socket.io**
-- 📜 **Edit history tracking**
-- 🛡️ **Authentication** with JWT (JSON Web Token)
-- 🗄️ **MongoDB for persistent storage**
-- 🌐 **RESTful API with Express.js**
-- 📡 **WebSockets for instant note syncing**
+- 🗒️ Create, edit, and delete notes
+- 📜 View edit history with timestamps
+- 🔄 Real-time updates using WebSockets
+- 🎨 Responsive UI with Tailwind CSS
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB, Mongoose
+- **Frontend:** Next.js 14, TypeScript, Tailwind CSS
+- **Backend:** Node.js, Express.js, MongoDB
 - **Real-time:** Socket.io
-- **Authentication:** JWT
-- **Environment Variables:** dotenv
-
----
+- **State Management:** React Hooks & Context API
 
 ## 📦 Installation
 
-Clone the repository and install dependencies:
+Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/yourusername/notesapp-websocket-backend.git
-cd notesapp-websocket-backend
+git clone https://github.com/yourusername/nextjs-notes-app.git
+cd nextjs-notes-app
 npm install
 ```
