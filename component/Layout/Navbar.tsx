@@ -8,7 +8,7 @@ const Navbar: React.FC = async () => {
 
   return (
     <nav className="bg-white shadow my-3">
-      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+      <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto py-4">
         {/* Logo */}
         <Link
           href=""

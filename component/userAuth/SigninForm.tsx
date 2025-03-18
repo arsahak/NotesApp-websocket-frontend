@@ -1,11 +1,12 @@
 "use client";
 
-import { userSignin } from "@/app/action/userAuth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LuEye, LuEyeOff, LuLock, LuUsers } from "react-icons/lu";
 import { toast } from "react-toastify";
+
+import { userSignin } from "@/app/action/userAuth";
 
 const SigninForm = () => {
   const router = useRouter();
@@ -22,7 +23,6 @@ const SigninForm = () => {
     try {
       const formData = new FormData(event.currentTarget);
       const response = await userSignin(formData);
-
 
       if (!response.success) {
         console.error("Login failed:", response.error);
@@ -53,7 +53,7 @@ const SigninForm = () => {
   }
 
   return (
-    <div className="w-[700px] mx-auto px-20 py-20 bg-white rounded shadow-md border">
+    <div className="w-[700px] mx-auto px-20 py-20 ">
       <h2 className="font-semibold text-3xl text-primary mb-12 text-center">
         Welcome back! Please log in
       </h2>

@@ -1,10 +1,12 @@
 "use client";
-import { userSignUp } from "@/app/action/userAuth";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LuEye, LuEyeOff } from "react-icons/lu";
 import { toast } from "react-toastify";
+
+import { userSignUp } from "@/app/action/userAuth";
 
 const SignupForm: React.FC = () => {
   const router = useRouter();
@@ -75,7 +77,7 @@ const SignupForm: React.FC = () => {
   };
 
   return (
-    <div className="w-[800px] mx-auto px-24 py-16 bg-white rounded shadow-md border">
+    <div className="w-[800px] mx-auto px-24 py-16 bg-white ">
       <h2 className="font-semibold text-3xl text-primary mb-12 text-center">
         Create your account
       </h2>

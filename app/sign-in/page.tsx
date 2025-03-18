@@ -2,7 +2,7 @@ import SigninForm from "@/component/userAuth/SigninForm";
 
 const page = () => {
   return (
-    <div className="mt-28">
+    <div className="mt-6">
       <SigninForm />
     </div>
   );
